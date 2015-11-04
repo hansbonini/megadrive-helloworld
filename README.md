@@ -20,6 +20,8 @@ The aim is to provide a very basic, working, self-contained project to serve as 
 
 ## Useful make targets
 - `make` or `make all` builds the source code
-- `make dump` dumps the compiled binary
 - `make clean` deletes any generated files except for the flat binary
 - `make realclean` deletes the flat binary and the above
+- `make dump` disassembles the compiled ELF binary
+- `make mddump` disassembles the compiled flat binary
+- `make hexdump` dumps the compiled flat binary in hexadecimal form
