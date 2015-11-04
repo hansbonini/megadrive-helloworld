@@ -14,10 +14,10 @@ AS := $(PREFIX)-as $(ASFLAGS)
 LDFLAGS := -O1 \
            -static -nostdlib
 LD := $(PREFIX)-ld $(LDFLAGS)
-OCFLAGS := --output-target=binary 
-OC := $(PREFIX)-objcopy $(OCFLAGS)
-ODFLAGS := -D
-OD := $(PREFIX)-objdump $(ODFLAGS)
+OBJCOPY := $(PREFIX)-objcopy --output-target=binary
+OBJDUMP-ELF := $(PREFIX)-objdump -D
+OBJDUMP-BIN := $(PREFIX)-objdump -m m68k -b binary --adjust-vma=0x000000 --start-address=0x000200 -D
+OD := od -A x -t x1z -v
 RM := rm -rf
 
 S := md/vectors.S md/romheader.S $(ASM) md/romfooter.S
@@ -38,12 +38,22 @@ $(ELF): $(O) md/romlayout.lds
 
 # target for building the rom binary
 $(ROM): $(ELF)
-	$(OC) $(ELF) $(ROM)
+	$(OBJCOPY) $(ELF) $(ROM)
 
 # target for dumping the elf binary
 .PHONY: dump
 dump: $(ELF)
-	$(OD) $(ELF)
+	$(OBJDUMP-ELF) $(ELF)
+
+# target for dumping the flat binary
+.PHONY: mddump
+mddump: $(ROM)
+	$(OBJDUMP-BIN) $(ROM)
+
+# target for hex dumping the flat binary
+.PHONY: hexdump
+hexdump: $(ROM)
+	$(OD) $(ROM)
 
 # target for cleaning up intermediate generated files
 .PHONY: clean
