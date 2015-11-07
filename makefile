@@ -4,7 +4,10 @@ ASM := main.S
 ROM := rom.bin
 
 # tool definitions
-PREFIX := m68k-none-elf
+ARCH := m68k
+PREFIX := $(ARCH)-none-elf
+CPPFLAGS := -Wall -Wcomment -Wundef -x assembler-with-cpp -nostdinc
+CPP := cpp $(CPPFLAGS)
 ASFLAGS := -m68000 \
            -mno-68881 -mno-68882 -mno-68851 \
 	   --warn \
@@ -16,7 +19,7 @@ LDFLAGS := -O1 \
 LD := $(PREFIX)-ld $(LDFLAGS)
 OBJCOPY := $(PREFIX)-objcopy --output-target=binary
 OBJDUMP-ELF := $(PREFIX)-objdump -D
-OBJDUMP-BIN := $(PREFIX)-objdump -m m68k -b binary --adjust-vma=0x000000 --start-address=0x000200 -D
+OBJDUMP-BIN := $(PREFIX)-objdump -m $(ARCH) -b binary --adjust-vma=0x000000 --start-address=0x000200 -D
 OD := od -A x -t x1z -v
 RM := rm -rf
 
@@ -30,6 +33,10 @@ all: $(ROM)
 
 # target for building .o files from .S files
 %.o: %.S
+	$(CPP) $< | $(AS) - -o $@
+
+# target for building .o files from .s files
+%.o: %.s
 	$(AS) $< -o $@
 
 # target for building the elf binary
@@ -41,18 +48,18 @@ $(ROM): $(ELF)
 	$(OBJCOPY) $(ELF) $(ROM)
 
 # target for dumping the elf binary
-.PHONY: dump
-dump: $(ELF)
+.PHONY: dumpelf
+dumpelf: $(ELF)
 	$(OBJDUMP-ELF) $(ELF)
 
 # target for dumping the flat binary
-.PHONY: mddump
-mddump: $(ROM)
+.PHONY: dumpbin
+dumpbin: $(ROM)
 	$(OBJDUMP-BIN) $(ROM)
 
 # target for hex dumping the flat binary
-.PHONY: hexdump
-hexdump: $(ROM)
+.PHONY: dumphex
+dumphex: $(ROM)
 	$(OD) $(ROM)
 
 # target for cleaning up intermediate generated files
