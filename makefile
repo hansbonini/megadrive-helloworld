@@ -6,7 +6,9 @@ ROM := rom.bin
 # tool definitions
 ARCH := m68k
 PREFIX := $(ARCH)-none-elf
-CPPFLAGS := -Wall -Wcomment -Wundef -x assembler-with-cpp -nostdinc
+CPPFLAGS := -Wall -Wcomment -Wundef \
+            -x assembler-with-cpp \
+            -nostdinc
 CPP := cpp $(CPPFLAGS)
 ASFLAGS := -m68000 \
            -mno-68881 -mno-68882 -mno-68851 \
@@ -19,7 +21,10 @@ LDFLAGS := -O1 \
 LD := $(PREFIX)-ld $(LDFLAGS)
 OBJCOPY := $(PREFIX)-objcopy --output-target=binary
 OBJDUMP-ELF := $(PREFIX)-objdump -D
-OBJDUMP-BIN := $(PREFIX)-objdump -m $(ARCH) -b binary --adjust-vma=0x000000 --start-address=0x000200 -D
+OBJDUMP-BIN := $(PREFIX)-objdump -m $(ARCH) \
+                                 -b binary \
+                                 --adjust-vma=0x000000 --start-address=0x000200 \
+                                 -D
 OD := od -A x -t x1z -v
 RM := rm -rf
 
