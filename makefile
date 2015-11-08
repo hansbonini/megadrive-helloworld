@@ -20,11 +20,11 @@ LDFLAGS := -O1 \
            -static -nostdlib
 LD := $(PREFIX)-ld $(LDFLAGS)
 OBJCOPY := $(PREFIX)-objcopy --output-target=binary
-OBJDUMP-ELF := $(PREFIX)-objdump -D
-OBJDUMP-BIN := $(PREFIX)-objdump -m $(ARCH) \
-                                 -b binary \
-                                 --adjust-vma=0x000000 --start-address=0x000200 \
-                                 -D
+OBJDUMP := $(PREFIX)-objdump --disassemble-all --wide
+OBJDUMP-ELF := $(OBJDUMP) --target=elf32
+OBJDUMP-BIN := $(OBJDUMP) --target=binary \
+                          --architecture=$(ARCH) \
+                          --adjust-vma=0x000000 --start-address=0x000200
 OD := od -A x -t x1z -v
 RM := rm -rf
 
