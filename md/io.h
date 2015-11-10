@@ -60,32 +60,54 @@
 .equ VDP, 0xC00000
   .equ VDP_DATA, (VDP + 0x0)
   .equ VDP_CTRL, (VDP + 0x4)
-    //vdp command number generator
-    #define VDP_CMD(x) (0x8000 + ((x)<<8))
+    //vdp command generator
+    #define VDP_CMD(cmd, data) ((0x8000+((cmd)<<8)) | (data))
 
     //horizontal blank interrupt enable (1: enable, 0: disable)
-    //palette selection (1: full 3bit, 0: limited TODO what does "limited" mean?)
-    //hv counter mode (1: latch value when interrupt asserted, 0: no latch)
-    //vdp enable (1: enable vdp, 0: disable vdp)
-    #define VDP_CMD0(hblank_enable, palette_select, hvcounter_mode, vdp_enable) \
-            ( (VDP_CMD(0x00)) | (((hblank_enable)&0b1)<<4) \
-	                      | (((palette_select)&0b1)<<2) \
-			      | (((hvcounter_mode)&0b1)<<1) \
-			      | (((vdp_enable)&0b1)<<0) )
+    #define VDP_CMD0_HBLANK_ENABLE(hblank_enable) VDP_CMD(0x00, (((hblank_enable)&0b1)<<4))
 
-    //tms9918 mode enable (1: tms9918 compatibility mode, 0: normal mode)
+    //palette selection (1: full 3bit, 0: limited TODO what does "limited" mean?)
+    #define VDP_CMD0_PALETTE_SELECT(palette_select) VDP_CMD(0x00, (((palette_select)&0b1)<<2))
+
+    //hv counter mode (1: latch value when interrupt asserted, 0: no latch)
+    #define VDP_CMD0_HVCOUNTER_MODE(hvcounter_mode) VDP_CMD(0x00, (((hvcounter_mode)&0b1)<<1))
+
+    //vdp enable (1: enable vdp, 0: disable vdp)
+    #define VDP_CMD0_VDP_ENABLE(vdp_enable) VDP_CMD(0x00, (((vdp_enable)&0b1)<<0))
+
+    //all CMD0 commands
+    #define VDP_CMD0(hblank_enable, palette_select, hvcounter_mode, vdp_enable) \
+            ( VDP_CMD0_HBLANK_ENABLE(hblank_enable) \
+            | VDP_CMD0_PALETTE_SELECT(palette_select) \
+            | VDP_CMD0_HVCOUNTER_MODE(hvcounter_mode) \
+            | VDP_CMD0_VDP_ENABLE(vdp_enable) )
+
+    //tms9918 mode (1: tms9918 compatibility mode, 0: normal mode)
+    #define VDP_CMD1_TMS9918_MODE(tms9918_mode) VDP_CMD(0x01, (((tms9918_mode)&0b1)<<7))
+
     //display enable (1: enable all layers, 0: background color only)
+    #define VDP_CMD1_DISPLAY_ENABLE(display_enable) VDP_CMD(0x01, (((display_enable)&0b1)<<6))
+
     //vertical blank interrupt enable (1: enable, 0: disable)
+    #define VDP_CMD1_VBLANK_ENABLE(vblank_enable) VDP_CMD(0x01, (((vblank_enable)&0b1)<<5))
+
     //dma enable (1: enable, 0: disable)
+    #define VDP_CMD1_DMA_ENABLE(dma_enable) VDP_CMD(0x01, (((dma_enable)&0b1)<<4))
+
     //ntsc/pal signal output mode (1: pal, 0: ntsc)
+    #define VDP_CMD1_PAL_MODE(pal_mode) VDP_CMD(0x01, (((pal_mode)&0b1)<<3))
+
     //master system mode toggle TODO what is this? (1: toggle, 0: nothing)
-    #define VDP_CMD1(tms9918_mode, display_enable, vblank_interrupt_enable, dma_enable, pal_mode, mastersystem_toggle) \
-            ( (VDP_CMD(0x01)) | (((tms9918_mode)&0b1)<<7) \
-	                      | (((display_enable)&0b1)<<6) \
-			      | (((vblank_interrupt_enable)&0b1)<<5) \
-			      | (((dma_enable)&0b1)<<4) \
-			      | (((pal_mode)&0b1)<<3) \
-			      | (((mastersystem_toggle)&0b1)<<2) )
+    #define VDP_CMD1_SMS_MODE(sms_mode) VDP_CMD(0x01, (((sms_toggle)&0b1)<<2))
+
+    //all CMD1 commands
+    #define VDP_CMD1(tms9918_mode, display_enable, vblank_enable, dma_enable, pal_mode, sms_mode) \
+            ( VDP_CMD1_TMS9918_MODE(tms9918_mode) \
+            | VDP_CMD1_DISPLAY_ENABLE(display_enable) \
+            | VDP_CMD1_VBLANK_ENABLE(vblank_enable) \
+            | VDP_CMD1_DMA_ENABLE(dma_enable) \
+            | VDP_CMD1_PAL_MODE(pal_mode) \
+            | VDP_CMD1_SMS_MODE(sms_mode) )
 
     //background A name table vram start address: ___0 0000  0000 0000
     #define VDP_CMD2(background_a_table_address) \
@@ -107,7 +129,7 @@
     //backdrop color
     #define VDP_CMD7(backdrop_color_palette, backdrop_color) \
             ( (VDP_CMD(0x07)) | (((backdrop_color_palette)&0b11)<<4) \
-			      | (((backdrop_color)&0b1111)<<0) )
+                              | (((backdrop_color)&0b1111)<<0) )
 
     //number of horizontal blanks to skip before generating an interrupt
     #define VDP_CMD10(hblanks_skipped) \
@@ -118,16 +140,16 @@
     //horizontal scrolling mode (3 or 1: per-scanline scrolling, 2: per-tile row scrolling, 0: per-background scrolling)
     #define VDP_CMD11(external_interrupt_enable, vertical_scroll_mode, horizontal_scroll_mode) \
             ( (VDP_CMD(0x0B)) | (((external_interrupt_enable)&0b1)<<3) \
-			      | (((vertical_scroll_mode)&0b1)<<2) \
-			      | (((horizontal_scroll_mode)&0b11)<<0) )
+                              | (((vertical_scroll_mode)&0b1)<<2) \
+                              | (((horizontal_scroll_mode)&0b11)<<0) )
 
     //cell mode (1: 40 columns, 0: 32 columns)
     //shadow and highlight enable (1: enable, 0: disable)
     //interlace mode (3: double TODO vertical? resolution, 1: interlace, 0: TODO progressive scan?)
     #define VDP_CMD12(cell_mode, shadow_highlight_enable, interlace_mode) \
             ( (VDP_CMD(0x0C)) | (((cell_mode)&0b1)<<7) | (((cell_mode)&0b1)<<0) \
-			      | (((shadow_highlight_enable)&0b1)<<3) \
-			      | (((interlace_mode)&0b11)<<1) )
+                              | (((shadow_highlight_enable)&0b1)<<3) \
+                              | (((interlace_mode)&0b11)<<1) )
 
     //horizontal scroll table start address: ____ __00  0000 0000
     #define VDP_CMD13(horizontal_scroll_table) \
