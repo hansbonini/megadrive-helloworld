@@ -1,5 +1,5 @@
 # megadrive-helloworld
-An example program to make getting started with Sega Megadrive development easier 
+An example program to make getting started with Sega Megadrive (aka Sega Genesis) development easier
 
 The aim is to provide a very basic, working, self-contained project to serve as documentation for the Mega Drive/Genesis hardware and uses modern unpatched versions of common development tools
 
