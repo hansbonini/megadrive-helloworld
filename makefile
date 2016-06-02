@@ -12,9 +12,9 @@ CPPFLAGS := -Wall -Wcomment -Wundef \
 CPP := cpp $(CPPFLAGS)
 ASFLAGS := -m68000 \
            -mno-68881 -mno-68882 -mno-68851 \
-	   --warn \
-	   --keep-locals \
-	   --register-prefix-optional --bitwise-or
+           --warn \
+           --keep-locals \
+           --register-prefix-optional --bitwise-or
 AS := $(PREFIX)-as $(ASFLAGS)
 LDFLAGS := -O1 \
            -static -nostdlib
