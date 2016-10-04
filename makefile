@@ -11,13 +11,15 @@ MAKE = make
 CPP = cpp \
   -Wall -Wcomment -Wundef \
   -x assembler-with-cpp \
-  -nostdinc
-AS = $(PREFIX)-as
+  -nostdinc \
+  $(CPP_DEBUGFLAGS)
+AS = $(PREFIX)-as \
   -m68000 \
   -mno-68881 -mno-68882 -mno-68851 \
   --warn \
   --keep-locals \
-  --register-prefix-optional --bitwise-or
+  --register-prefix-optional --bitwise-or \
+  $(AS_DEBUGFLAGS)
 LD = $(PREFIX)-ld \
   -O1 \
   -static -nostdlib
@@ -44,6 +46,11 @@ ELF := $(ROM:.bin=.elf)
 # default target to build the rom
 .PHONY: all
 all: $(ROM)
+
+# build the default target with debugging options enabled
+.PHONY: debug
+debug:
+	$(MAKE) AS_DEBUGFLAGS="-g" CPP_DEBUGFLAGS="-D DEBUG"
 
 # target for dumping the elf binary
 .PHONY: dumpelf
