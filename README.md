@@ -15,7 +15,7 @@ The aim is to provide a very basic, working, self-contained project to serve as 
   5. `sudo make install` or copy the `./gas/as`, `./ld/ld`, `./binutils/objcopy` and `./binutils/objdump` binaries to a directory in your `PATH`
 
 ## Building the program
-1. `make realclean && make`
+1. `make realclean all`
 2. run the resulting `.bin` file in an emulator or a console
 
 ## Useful make targets
