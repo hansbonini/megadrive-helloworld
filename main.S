@@ -28,6 +28,11 @@ ready:
   move.l #0xBEEFCAFE, d0
   jsr mem_set_l
 
+  // test clearing
+  move.l #RAM, a0
+  move.l #(RAM+0x08), a1
+  jsr mem_clear_l
+
   // clear Z80 RAM
   move.l #Z80RAM, a0
   move.l #Z80RAM_END, a1

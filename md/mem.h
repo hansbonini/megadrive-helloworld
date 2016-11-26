@@ -5,7 +5,7 @@
   mem_clear_l_loop\@:
     clr.l (\a_start)+
     cmpa.l \a_end, \a_start
-    bne mem_clear_l_loop\@
+    blt mem_clear_l_loop\@
 .endm
 
 // set memory in long (4byte) chunks
@@ -16,6 +16,6 @@
   mem_set_l_loop\@:
     move.l \d_value, (\a_start)+
     cmpa.l \a_end, \a_start
-    bne mem_set_l_loop\@
+    blt mem_set_l_loop\@
 .endm
 
