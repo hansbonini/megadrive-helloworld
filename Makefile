@@ -31,14 +31,15 @@ OBJCOPY = $(PREFIX)-objcopy \
   --output-target=binary
 DGEN = dgen
 OBJDUMP = $(PREFIX)-objdump \
-  --disassemble-all \
+  --disassemble \
+  --start-address=0x000200 --adjust-vma=0x000000 \
+  --source --line-numbers --debugging --stabs \
   --wide
 OBJDUMP-ELF = $(OBJDUMP) \
   --target=elf32-m68k
 OBJDUMP-BIN = $(OBJDUMP) \
   --target=binary \
-  --architecture=$(ARCH) \
-  --adjust-vma=0x000000 --start-address=0x000200
+  --architecture=$(ARCH)
 OD = od \
   --address-radix=x \
   --format=x1z --output-duplicates
