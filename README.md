@@ -20,6 +20,7 @@ The aim is to provide a very basic, working, self-contained project to serve as 
 
 ## Useful make targets
 - `make` or `make all` builds the source code
+- `make run` runs the flat binary in `dgen`
 - `make clean` deletes any generated files except for the flat binary
 - `make realclean` deletes the flat binary and the above
 - `make dumpelf` disassembles the compiled ELF binary
