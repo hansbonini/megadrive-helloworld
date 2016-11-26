@@ -1,7 +1,11 @@
 # source files to assemble
-ASM := main.S
+ASM = main.S
 # name of the rom file
-ROM := rom.bin
+ROM = rom.bin
+
+S_CPP = md/vectors.S md/romheader.S $(ASM) md/romfooter.S
+O = $(S_CPP:.S=.o)
+ELF = $(ROM:.bin=.elf)
 
 # tool definitions
 ARCH := m68k
@@ -25,11 +29,12 @@ LD = $(PREFIX)-ld \
   -static -nostdlib
 OBJCOPY = $(PREFIX)-objcopy \
   --output-target=binary
+DGEN = dgen
 OBJDUMP = $(PREFIX)-objdump \
   --disassemble-all \
   --wide
 OBJDUMP-ELF = $(OBJDUMP) \
-  --target=elf32
+  --target=elf32-m68k
 OBJDUMP-BIN = $(OBJDUMP) \
   --target=binary \
   --architecture=$(ARCH) \
@@ -38,10 +43,6 @@ OD = od \
   --address-radix=x \
   --format=x1z --output-duplicates
 RM = rm -rf
-
-S := md/vectors.S md/romheader.S $(ASM) md/romfooter.S
-O := $(S:.S=.o)
-ELF := $(ROM:.bin=.elf)
 
 # default target to build the rom
 .PHONY: all
@@ -52,20 +53,26 @@ all: $(ROM)
 debug:
 	$(MAKE) AS_DEBUGFLAGS="-g" CPP_DEBUGFLAGS="-D DEBUG"
 
+# run the ROM binary in an emulator
+.PHONY: run
+run: $(ROM)
+	$(info press ` to enter debugger)
+	$(DGEN) $<
+
 # target for dumping the elf binary
 .PHONY: dumpelf
 dumpelf: $(ELF)
-	$(OBJDUMP-ELF) $(ELF)
+	$(OBJDUMP-ELF) $<
 
 # target for dumping the flat binary
 .PHONY: dumpbin
 dumpbin: $(ROM)
-	$(OBJDUMP-BIN) $(ROM)
+	$(OBJDUMP-BIN) $<
 
 # target for hex dumping the flat binary
 .PHONY: dumphex
 dumphex: $(ROM)
-	$(OD) $(ROM)
+	$(OD) $<
 
 # target for cleaning up intermediate generated files
 .PHONY: clean
@@ -91,5 +98,5 @@ $(ELF): $(O) md/romlayout.lds
 
 # target for building the rom binary
 $(ROM): $(ELF)
-	$(OBJCOPY) $(ELF) $(ROM)
+	$(OBJCOPY) $< $@
 
