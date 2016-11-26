@@ -1,5 +1,5 @@
 # source files to assemble
-ASM = main.S
+ASM = main.S md/mem.S
 # name of the rom file
 ROM = rom.bin
 
